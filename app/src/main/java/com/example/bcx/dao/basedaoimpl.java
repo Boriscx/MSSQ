@@ -9,7 +9,7 @@ public class basedaoimpl implements basedao {
 
     @Override
     public void add(Object o) {
-        
+
     }
 
     @Override
