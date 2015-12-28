@@ -10,7 +10,7 @@ public class basedaoimpl implements basedao {
     @Override
     public void add(Object o) {
         int abdd;
-        abdd=2;
+        abdd=211;
         System.out.println(abdd);
     }
 
