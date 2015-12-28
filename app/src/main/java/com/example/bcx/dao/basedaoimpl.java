@@ -11,6 +11,7 @@ public class basedaoimpl implements basedao {
     public void add(Object o) {
         int abdd;
         abdd=211;
+        System.out.println();
         System.out.println(abdd);
     }
 
