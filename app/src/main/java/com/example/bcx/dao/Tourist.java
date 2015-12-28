@@ -6,4 +6,5 @@ package com.example.bcx.dao;
 public interface Tourist extends basedao<Tourist> {
     public void locaallinfo();
     public void looktiezi(int id);
+    System.out.println("你好！");
 }
