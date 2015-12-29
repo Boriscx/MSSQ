@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     public void tjyz(View v){
         etname = (EditText) findViewById(R.id.name);
         String name = etname.getText().toString();
+        Toast.makeText(MainActivity.this,R.string.app_name,Toast.LENGTH_LONG).show();
         if (!name.isEmpty()) {
             tjiao();
         }
