@@ -1,5 +1,6 @@
 package com.bcx.Test.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
@@ -14,6 +15,7 @@ public class MainActivity extends Activity {
     private TextView mtextView;
     private Button mtrue_button;
     private Button mfalse_button;
+    private Button cheat_button;
     private Button mup_button;
     private Button mnext_button;
     private TrueFalse[] mQuestionbook=new TrueFalse[]{
@@ -23,6 +25,7 @@ public class MainActivity extends Activity {
             new TrueFalse(R.string.question_four,true),
     };
     private int mCurrentindex=0;
+    private boolean mIsCheater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,7 @@ public class MainActivity extends Activity {
                 updateQuestion();
             }
         });
-        updateQuestion();
+
         mtrue_button=(Button)findViewById(R.id.true_button);
         mtrue_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,11 +56,22 @@ public class MainActivity extends Activity {
                 checkAnswer(false);
             }
         });
+        cheat_button=(Button)findViewById(R.id.cheat_button);
+        cheat_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this,CheatActivity.class);
+                boolean answer=mQuestionbook[mCurrentindex].isTrueQuestion();
+                intent.putExtra(CheatActivity.ANSWER_IS_TRUE,answer);
+                startActivityForResult(intent,0);
+            }
+        });
         mnext_button=(Button)findViewById(R.id.next_button);
         mnext_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentindex=(mCurrentindex+1)%mQuestionbook.length;
+                mIsCheater=false;
                 updateQuestion();
             }
         });
@@ -69,9 +83,16 @@ public class MainActivity extends Activity {
                 updateQuestion();
             }
         });
+        updateQuestion();
     }
 
-
+    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        if(data==null){
+            return;
+        }else{
+            mIsCheater=data.getBooleanExtra(CheatActivity.ANSWER_SHOW,false);
+        }
+    }
 
 
     public void updateQuestion(){
@@ -79,20 +100,25 @@ public class MainActivity extends Activity {
         mtextView.setText(question);
     }
     public void upquestion(){
+        mIsCheater=false;
         mCurrentindex=(mCurrentindex+mQuestionbook.length-1)%mQuestionbook.length;
     }
 
-    public void checkAnswer(boolean Answer){
-        boolean manswer=mQuestionbook[mCurrentindex].isTrueQuestion();
-        System.out.println("你的答案为："+Answer); 
-        System.out.println("正确答案为："+manswer);
-        int messageid=0;
-        if(Answer&&manswer){
-            messageid=R.string.true_button;
+    public void checkAnswer(boolean Answer) {
+        boolean manswer = mQuestionbook[mCurrentindex].isTrueQuestion();
+        System.out.println("你的答案为：" + Answer);
+        System.out.println("正确答案为：" + manswer);
+        int messageid = 0;
+        if(mIsCheater){
+            messageid=R.string.cheater_show;
+        }else{
+            if (Answer && manswer) {
+                messageid = R.string.true_button;
+            } else {
+                messageid = R.string.false_button;
+            }
         }
-        else{
-            messageid=R.string.false_button;
-        }
-        Toast.makeText(MainActivity.this,messageid,Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, messageid, Toast.LENGTH_SHORT).show();
+
     }
 }

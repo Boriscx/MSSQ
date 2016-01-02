@@ -8,4 +8,9 @@
     <string name="question_two">你是学生吗？</string>
     <string name="question_three">你的手机是Iphone吗？</string>
     <string name="question_four">去过图书馆吗？</string>
+    <string name="Answertext">确定要查看答案吗？</string>
+    <string name="infoAnswer">显示答案</string>
+    <string name="cheatanswer">查看答案</string>
+    <string name="rebackfirst">返回</string>
+    <string name="cheater_show">您看过答案了</string>
 </resources>
