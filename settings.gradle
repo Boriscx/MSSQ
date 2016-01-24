@@ -1,1 +1,1 @@
-include ':app', ':Test', ':criminallntent'
+include ':app', ':Test', ':criminallntent', ':mssqapp', ':hellomoon'
