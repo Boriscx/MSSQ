@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">美食社区</string>
+    <string name="app_name">青草美食社区</string>
     <string name="action_settings">菜单</string>
     <string name="hello_world">Hello world!</string>
     <string name="name">请输入</string>
@@ -9,7 +9,20 @@
     <string name="password">密码</string>
     <string name="login">登录</string>
     <string name="title_activity_login">登录</string>
+    <!--Plate板块相关-->
+    <string name="mssq_plate_withoutfooddeath">无美食不成活</string>
+    <string name="mssq_plate_bakery">一如烘培深似海</string>
+    <string name="mssq_plate_goodfood">良食</string>
+    <string name="mssq_plate_reduceweight">瘦成一道闪电</string>
+    <string name="mssq_plate_havebaby">有娃后的新生活</string>
+    <string name="mssq_plate_worldfood">无国界美食与旅行</string>
+    <string name="mssq_plate_foodpicture">青草摄影社</string>
+    <string name="mssq_plate_foodstation">优食汇服务站</string>
+    <string name="mssq_plate_samecityfood">同城美食聚会</string>
+    <string name="mssq_plate_helpus">帮青草进步</string>
+<!--Splash相关-->
 
+    
     <!-- Strings related to login -->
     <string name="prompt_email">邮箱</string>
     <string name="prompt_password">密码</string>
@@ -22,5 +35,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 
 </resources>

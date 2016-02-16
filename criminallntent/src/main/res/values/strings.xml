@@ -16,4 +16,6 @@
     <string name="delete_crime">删除</string>
     <string name="crime_save">保存</string>
     <string name="take">拍摄</string>
+    <string name="crime_suspect_text">选择联系人</string>
+    <string name="crime_report_text">发送坏习惯报告</string>
 </resources>

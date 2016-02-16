@@ -3,7 +3,10 @@ package com.example.bcx.criminallntent;
 
 import android.annotation.TargetApi;
 
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.ImageReader;
@@ -12,7 +15,9 @@ import android.os.Bundle;
 import android.hardware.camera2.*;
 
 import android.os.Handler;
+
 import android.os.HandlerThread;
+import android.support.annotation.Size;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -25,80 +30,88 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public class CrimeCameraFragment extends Fragment {
 
 
     private static final String TAG="CrimeCameraFragment";
+    public static final String EXTRA_PHOTO_FILENAME="com.example.bcx.criminallntent.photo_filename";
 
     private Camera mCamera;
-
-    private CameraManager mCameraManager;
-    private SurfaceHolder mSurfaceHolder;
     private SurfaceView mSurfaceView;
-    private Handler mHandler;
-    private ImageReader mImageReader;
-    private String mCameraId;
-    private ImageReader.OnImageAvailableListener mOnImageAvailableListener;
+    private View mProgressContainer;
 
 
-    @SuppressWarnings("")
+    @SuppressWarnings("deprecation")
+    public Camera.ShutterCallback mShutterCallback=new Camera.ShutterCallback(){
+        public void onShutter(){
+            mProgressContainer.setVisibility(View.VISIBLE);
+        }
+    };
+
+    @SuppressWarnings("deprecation")
+    private Camera.PictureCallback mJpegCallback=new Camera.PictureCallback(){
+        public void onPictureTaken(byte[] data,Camera camera){
+            String filename= UUID.randomUUID().toString()+".jpg";
+            FileOutputStream os=null;
+            boolean success=true;
+            try{
+                os=getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+                os.write(data);
+            } catch (Exception e) {
+                Log.e(TAG,"打开输出流失败！"+filename,e);
+                success=false;
+            }
+            finally {
+                try{
+                    if(os!=null){
+                        os.close();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG,"关闭输入流失败！"+filename,e);
+                    success=false;
+                }
+            }
+            if(success){
+                Intent i=new Intent();
+                i.putExtra(EXTRA_PHOTO_FILENAME,filename);
+                getActivity().setResult(Activity.RESULT_OK,i);
+                Log.i(TAG,"JPEG保存成功，文件名为"+filename);
+            }else{
+                getActivity().setResult(Activity.RESULT_CANCELED);
+            }
+            getActivity().finish();
+        }
+    };
+
     @Override
+    //@SuppressWarnings("deprecation")
     public View onCreateView(LayoutInflater inflater, ViewGroup parent,
                              Bundle savedInstanceState) {
         View v=inflater.inflate(R.layout.fragment_crime_camera,parent,false);
+
+        mProgressContainer=v.findViewById(R.id.crime_camera_progressContainer);
+        mProgressContainer.setVisibility(View.INVISIBLE);
 
         Button takePictuieButton=(Button)v.findViewById(R.id.crime_camera_takePictureButton);
         takePictuieButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                if(mCamera!=null){
+                    mCamera.takePicture(mShutterCallback,null,mJpegCallback);
+                }
             }
         });
 
-
-        mCameraManager=(CameraManager)getActivity().getSystemService(Context.CAMERA_SERVICE);
         mSurfaceView=(SurfaceView)v.findViewById(R.id.crime_camera_suifaceView);
-        mSurfaceHolder=mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                initCameraAndPreview();
-            }
-        });
-
-        private void initCameraAndPreview() {
-            Log.d("linc","init camera and preview");
-            HandlerThread handlerThread = new HandlerThread("Camera2");
-            handlerThread.start();
-            mHandler = new Handler(handlerThread.getLooper());
-            try {
-                mCameraId = ""+CameraCharacteristics.LENS_FACING_FRONT;
-                mImageReader = ImageReader.newInstance(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
-                        ImageFormat.JPEG,/*maxImages*/7);
-                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mHandler);
-
-                mCameraManager.openCamera(mCameraId, DeviceStateCallback, mHandler);
-            } catch (CameraAccessException e) {
-                Log.e("linc", "open camera failed." + e.getMessage());
-            }
-        }
-
-        /*SurfaceHolder holder=mSurfaceView.getHolder();
+        SurfaceHolder holder=mSurfaceView.getHolder();
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        holder.addCallback(new SurfaceHolder.Callback2() {
+        holder.addCallback(new SurfaceHolder.Callback() {
 
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
@@ -107,19 +120,23 @@ public class CrimeCameraFragment extends Fragment {
                         mCamera.setPreviewDisplay(holder);
                     }
                 } catch (IOException e) {
-                    Log.e(TAG,"开启显示失败！",e);
-                    e.printStackTrace();
+                    Log.e(TAG, "开启显示失败！", e);
+
                 }
             }
 
 
+            @SuppressWarnings("deprecation")
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 if(mCamera==null) return;
-                    Camera.Parameters parameters=mCamera.getParameters();
-                    Camera.Size s=getBestSupportedSize(parameters.getSupportedPreviewSizes(),width,height);
-                    parameters.setPreviewSize(s.width, s.height);
-                    mCamera.setParameters(parameters);
+                Camera.Parameters parameters=mCamera.getParameters();
+
+                Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width, height);
+                parameters.setPreviewSize(s.width, s.height);
+                s=getBestSupportedSize(parameters.getSupportedPictureSizes(),width,height);
+                parameters.setPictureSize(s.width,s.height);
+                mCamera.setParameters(parameters);
                 try{
                     mCamera.startPreview();
                 }catch (Exception e){
@@ -127,29 +144,26 @@ public class CrimeCameraFragment extends Fragment {
                     mCamera.release();
                     mCamera=null;
                 }
-
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 if(mCamera!=null){
                     mCamera.stopPreview();
+                    mCamera.release();
+                    mCamera=null;
                 }
             }
-
-            @Override
-            public void surfaceRedrawNeeded(SurfaceHolder holder) {
-
-            }
-        });*/
+        });
         return v;
     }
 
 
 
+    @SuppressWarnings("deprecation")
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes,int width,int height){
         Camera.Size bestSize=sizes.get(0);
-        int largestArea=bestSize.width*bestSize.height;
+        int largestArea=bestSize.width * bestSize.height;
         for (Camera.Size s:sizes){
             int area=s.width*s.height;
             if(area>largestArea){
@@ -162,6 +176,7 @@ public class CrimeCameraFragment extends Fragment {
 
     @TargetApi(9)
     @Override
+    @SuppressWarnings("deprecation")
     public void onResume(){
         super.onResume();
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD){
@@ -176,6 +191,7 @@ public class CrimeCameraFragment extends Fragment {
     public void onPause(){
         super.onResume();
         if(mCamera!=null){
+            mCamera.stopPreview();
             mCamera.release();
             mCamera=null;
         }

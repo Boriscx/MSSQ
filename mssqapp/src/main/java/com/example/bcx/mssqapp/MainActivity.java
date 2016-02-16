@@ -1,13 +1,14 @@
 package com.example.bcx.mssqapp;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.bcx.base.baseActivityFragment;
+
+public class MainActivity extends baseActivityFragment {
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected Fragment createFragment() {
+        return new ActivityFragment();
     }
 }
